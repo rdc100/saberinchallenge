@@ -3,6 +3,8 @@ using ContactManager.Hubs;
 using Newtonsoft.Json;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Serialization;
+using ElmahCore;
+using ElmahCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +22,7 @@ builder.Services.AddDbContext<ApplicationContext>(options =>
                         opts => opts.CommandTimeout(600)));
 
 builder.Services.AddSignalR();
+builder.Services.AddElmah();
 
 var app = builder.Build();
 
@@ -51,5 +54,7 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.MapHub<ContactHub>("/contacthub");
+
+app.UseElmah();
 
 app.Run();

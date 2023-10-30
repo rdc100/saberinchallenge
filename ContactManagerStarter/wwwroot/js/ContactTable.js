@@ -31,9 +31,19 @@ $(function () {
     });
 
     $(document).on("click", "#addNewEmail", function () {
+        if ( $('#notSavedEmailFeedback').is(":visible") ) {
+            $('#newEmailAddress').removeClass("invalidInput");
+            $('#notSavedEmailFeedback').hide();
+        }
+
         let emailAddress = $('#newEmailAddress').val();
         let emailAddressType = $('#newEmailAddressType').val();
+        let emailIsPrimary = false;
         let emailTypeClass;
+        let emailCount = $('#emailList li').length;
+        if($("#newEmailAddressPriority").prop('checked') == true || emailCount == 0){
+            emailIsPrimary = true;
+        }
 
         if (emailAddressType === "Personal") {
             emailTypeClass = "badge-primary"; //blue badge
@@ -42,8 +52,25 @@ $(function () {
         }
 
         if (validateEmail(emailAddress)) {
-                  $("#emailList").append(
-            '<li class="list-group-item emailListItem" data-email="' + emailAddress + '" data-type="' + emailAddressType + '">' +
+            let priorityType = '<span style="width: 55px" class="badge badge-light m-l-10"> </span>';
+            let priorityVal = "None";
+            if (emailIsPrimary){
+                priorityType = '<span style="width: 55px" class="badge badge-info m-l-10"> Primary</span>';
+                priorityVal = "Primary";
+
+                // Remove any other primary email address from the list.
+                let inner = $('#emailList').html();
+                if (inner.includes('Primary')){
+                    inner = inner.replace('badge-info', 'badge-light');
+                    inner = inner.replace('"Primary"', '"None"');
+                    inner = inner.replace(' Primary', ' ');
+                    $('#emailList').html(inner);
+                }
+            }
+
+            $("#emailList").append(
+            '<li class="list-group-item emailListItem" data-email="' + emailAddress + '" data-type="' + emailAddressType + '" data-priority="' + priorityVal + '">' +
+            priorityType +
             '<span class="badge ' + emailTypeClass + ' m-l-10">' + emailAddressType + '</span>' +
             '<span class="m-l-20">' + emailAddress + ' </span>' +
             '<a class="redText pointer float-right removeEmail" title="Delete Email">X</a>' +
@@ -58,6 +85,12 @@ $(function () {
     });
 
     $(document).on("click", "#addNewAddress", function () {
+        $('.addressInput').each(function(index, item) {
+            if ( $(item).hasClass("invalidInput") ) {
+                $(item).removeClass("invalidInput");
+            }
+        });
+
         let street1 = $('#newAddressStreet1').val();
         let street2 = $('#newAddressStreet2').val();
         let city = $('#newAddressCity').val();
@@ -109,11 +142,49 @@ $(function () {
     });
 
     $(document).on("click", "#saveContactButton", function () {
+        let isNewEmail = false;
+        if($.trim($('#newEmailAddress').val()).length != 0){
+            $('#newEmailAddress').addClass("invalidInput");
+            $('#notSavedEmailFeedback').show();
+            isNewEmail = true;
+        } else if ($('#newEmailAddress').hasClass("invalidInput"))
+        {
+            $('#newEmailAddress').removeClass("invalidInput");
+            $('#notSavedEmailFeedback').hide();
+        }
+
+        let isNewAddress = false;
+        $('.addressInput').each(function(index, item) {
+            if ($.trim($(item).val()).length != 0){
+                isNewAddress = true;
+                $(item).addClass("invalidInput");
+            } else if ($(item).hasClass("invalidInput")){
+                $(item).removeClass("invalidInput");
+            }
+        });
+
+        if (isNewAddress || isNewEmail) {
+            let output = "";
+            if (isNewEmail)
+                output += "A new email ";
+            if (isNewAddress){
+                if (output.length == 0)
+                    output += "A new address";
+                else
+                    output += " and address";
+            }
+
+            if (!confirm(output + " was entered, but not added to the list(s). Proceed without saving?")){
+                return;
+            }
+        }
+
         function getEmailAddresses() {
             return $(".emailListItem").map(function () {
                 return {
                     Email: $(this).data("email"),
-                    Type: $(this).data("type")
+                    Type: $(this).data("type"),
+                    Priority: $(this).data("priority")
                 }
             }).get();
         }

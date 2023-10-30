@@ -9,6 +9,7 @@ namespace ContactManager.Models
     public class EmailViewModel
     {
         public EmailType Type { get; set; }
+        public EmailPriority Priority { get; set; }
         public string Email { get; set; }
     }
 }

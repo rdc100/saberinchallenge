@@ -42,8 +42,17 @@
                     {
                         foreach (var emailAddress in Model.EmailAddresses)
                         {
-                            <li class="list-group-item emailListItem" data-email="@emailAddress.Email" data-type="@emailAddress.Type">
+                            <li class="list-group-item emailListItem" data-email="@emailAddress.Email" data-type="@emailAddress.Type" data-priority="@emailAddress.Priority">
                                 @{
+                                    if (emailAddress.Priority == EmailPriority.Primary)
+                                    {
+                                        <span style="width: 55px" class="badge badge-info m-l-10"> @emailAddress.Priority</span>
+                                    }
+                                    else
+                                    {
+                                        <span style="width: 55px" class="badge badge-light m-l-10"> </span>
+                                    }
+                                    
                                     if (emailAddress.Type == EmailType.Personal)
                                     {
                                         <span class="badge badge-primary m-l-10"> @emailAddress.Type</span>
@@ -64,17 +73,24 @@
         </div>
 
         <div class="row">
-            <div class="form-group col-md-6">
+            <div class="form-group col-md-5">
                 <input id="newEmailAddress" type="email" placeholder="Email" class="form-control">
                 <div id="invalidEmailFeedback" class="invalidMessage">
                     Please provide a valid email.
                 </div>
-            </div>
-            <div class="form-group col-md-4">
+                <div id="notSavedEmailFeedback" class="invalidMessage">
+                    The email has not been added to the list.
+                </div>
+        </div>
+            <div class="form-group col-md-3">
                 <select id="newEmailAddressType" class="form-control">
                     <option value="Personal">Personal</option>
                     <option value="Business">Business</option>
                 </select>
+            </div>
+                <div class="form-group col-md-2" style="justify-content: center; align-items: center; vertical-align: bottom">
+                <input type="checkbox" id="newEmailAddressPriority" name="priority" value="Primary">
+                <label for="priority"> Primary</label>
             </div>
             <div class="form-group col-md-2">
                 <button id="addNewEmail" class="btn btn-info">Add</button>
